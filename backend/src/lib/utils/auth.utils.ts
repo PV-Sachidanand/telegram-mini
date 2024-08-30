@@ -30,6 +30,7 @@ export function decodeInitData(initDataRaw: string): InitData {
   const chatInstance = params.get("chat_instance");
   const chatType = params.get("chat_type");
   const hash = params.get("hash");
+  console.log("userObj", userObj);
 
   return {
     query_id: queryId ?? undefined,

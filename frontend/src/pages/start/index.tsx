@@ -1,7 +1,8 @@
-import { TokenType } from "@/lib/constants";
+import { apiBaseUrl, TokenType } from "@/lib/constants";
 import { useAuthenticateMutation } from "../../services/authServices";
 import { retrieveLaunchParams, useMainButton } from "@telegram-apps/sdk-react";
 import { useEffect } from "react";
+import axios from "axios";
 
 export default function StartPage() {
   const mainButton = useMainButton();
@@ -22,6 +23,24 @@ export default function StartPage() {
       authenticate({ initDataRaw });
     }
   };
+
+  useEffect(() => {
+    const fetchInit = async () => {
+      try {
+        const response = await axios.get(apiBaseUrl + "/users", {
+          headers: {
+            Authorization: `tma ${initDataRaw}`,
+          },
+        });
+        console.log("response", response);
+      } catch (error) {
+        console.error("Error fetching init data:", error);
+      }
+    };
+    if (initDataRaw) {
+      fetchInit();
+    }
+  }, [initDataRaw]);
 
   useEffect(() => {
     if (isSuccess && data.success) {
@@ -53,6 +72,7 @@ export default function StartPage() {
   return (
     <div className="w-full justify-center items-center h-full text-center">
       <h1>Hii Start Page</h1>
+      {/* <img src=/> */}
     </div>
   );
 }

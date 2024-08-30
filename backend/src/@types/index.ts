@@ -7,6 +7,7 @@ export interface JwtSubject {
   start_param?: string;
   language_code: string;
   allows_write_to_pm: boolean;
+  photoUrl: string;
 }
 
 export type JwtPayload = {

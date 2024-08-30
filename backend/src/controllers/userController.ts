@@ -8,12 +8,15 @@ import dayjs from "dayjs";
 import authService from "../lib/services/authServices";
 import { DOMAIN, NODE_ENV } from "../lib/constants";
 import { JwtSubject } from "../@types";
+import { getInitData } from "../routes/userRoutes";
 
 // @desc    Get all users
 // @route   GET /users
 // @access  Public
 export const getUsers = async (req: Request, res: Response): Promise<void> => {
   try {
+    console.log("userrrrr", getInitData(res));
+
     const users: UserDocument[] = await UserModel.find();
     buildResponse(res, users);
   } catch (err: any) {
@@ -89,6 +92,7 @@ export const authenticate = async (
         language_code: user?.language_code,
         allows_write_to_pm: user?.allows_write_to_pm,
         start_param: user?.start_param,
+        photoUrl: user?.photoUrl,
       });
 
       res.cookie("miniapp_jwt", jwt, {
