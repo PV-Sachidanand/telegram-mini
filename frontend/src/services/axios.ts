@@ -1,3 +1,4 @@
+import { retrieveLaunchParams } from "@telegram-apps/sdk-react";
 import { logOut, userSession } from "../lib/auth";
 import { apiBaseUrl } from "../lib/constants";
 import type {
@@ -10,8 +11,11 @@ import { toast } from "sonner";
 
 const getRequestConfig = async (config: InternalAxiosRequestConfig) => {
   const { token } = userSession();
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  const { initDataRaw } = retrieveLaunchParams();
+  console.log("initDataRaw", token, initDataRaw);
+
+  if (initDataRaw) {
+    config.headers.Authorization = `tma ${initDataRaw}`;
   }
   return config;
 };

@@ -28,11 +28,15 @@ interface Response {
   token: string;
 }
 
-interface User {
+export interface User {
   _id: number;
   __v: number;
   allowsWriteToPm: boolean;
   firstName: string;
   languageCode: string;
   lastName: string;
+  username: string;
+  photoUrl: string;
+  createdAt: string;
+  updatedAt: string;
 }

@@ -13,7 +13,6 @@ export type UserDocument = Document & {
   isPremium?: boolean;
   languageCode: string;
   allowsWriteToPm: boolean;
-  photoUrl: string;
 };
 
 // Create UserSchema
@@ -26,7 +25,6 @@ const UserSchema = new Schema<UserDocument>(
     isPremium: { type: Boolean },
     languageCode: { type: String, required: true },
     allowsWriteToPm: { type: Boolean, required: true },
-    photoUrl: { type: String },
   },
   {
     timestamps: true,

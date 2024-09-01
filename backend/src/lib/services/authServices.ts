@@ -38,7 +38,6 @@ class AuthService {
           isPremium: user.is_premium,
           languageCode: user.language_code,
           allowsWriteToPm: user.allows_write_to_pm,
-          photoUrl: user.photoUrl,
         },
       },
       {
