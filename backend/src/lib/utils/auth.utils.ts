@@ -1,6 +1,16 @@
 import * as crypto from "crypto";
-import { BOT_TOKEN } from "../constants";
+import { TELEGRAM_BOT_TOKEN } from "../constants";
 
+/**
+ * Interface for initializing data.
+ * @property {string | undefined} query_id - The query ID.
+ * @property {Record<string, any> | undefined} user - The user data.
+ * @property {number | undefined} auth_date - The authentication date.
+ * @property {string | undefined} start_param - The start parameter.
+ * @property {string | undefined} chat_instance - The chat instance.
+ * @property {string | undefined} chat_type - The chat type.
+ * @property {string | undefined} hash - The hash.
+ */
 export interface InitData {
   query_id: string | undefined;
   user: Record<string, any> | undefined;
@@ -11,10 +21,22 @@ export interface InitData {
   hash: string | undefined;
 }
 
+/**
+ * Creates a secret for the web app.
+ * @returns {Buffer} The secret buffer.
+ */
 export function createWebAppSecret(): Buffer {
-  return crypto.createHmac("sha256", "WebAppData").update(BOT_TOKEN).digest();
+  return crypto
+    .createHmac("sha256", "WebAppData")
+    .update(TELEGRAM_BOT_TOKEN)
+    .digest();
 }
 
+/**
+ * Decodes the initialization data.
+ * @param {string} initDataRaw - The raw initialization data.
+ * @returns {InitData} The decoded initialization data.
+ */
 export function decodeInitData(initDataRaw: string): InitData {
   const params = new URLSearchParams(initDataRaw);
 
@@ -43,6 +65,12 @@ export function decodeInitData(initDataRaw: string): InitData {
   };
 }
 
+/**
+ * Verifies the Telegram web app initialization data.
+ * @param {InitData} initData - The initialization data.
+ * @param {Buffer} secretKey - The secret key.
+ * @returns {boolean} True if the data is verified, otherwise false.
+ */
 export function verifyTelegramWebAppInitData(
   initData: InitData,
   secretKey: Buffer

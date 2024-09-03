@@ -1,3 +1,11 @@
+/**
+ * This is the main entry point of the application. It sets up the Express server,
+ * loads environment variables, connects to the database, and defines routes.
+ *
+ * @author [Sachidanand Shah]
+ * @version 1.0.0
+ */
+
 import express from "express";
 import dotenv from "dotenv";
 import connectDB from "./config/db";

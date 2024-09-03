@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { UserDocument, UserModel } from "../models/User";
 import buildError from "../lib/utils/buildError";
-import { handleError } from "../lib/handlers/handleError";
 import buildResponse from "../lib/utils/buildResponse";
 import { StatusCodes } from "../lib/utils/statusCodes";
 import dayjs from "dayjs";
@@ -14,16 +13,12 @@ import asyncHandler from "../lib/handlers/asyncHandler";
 // @desc    Get all users
 // @route   GET /users
 // @access  Public
-export const getUsers = async (req: Request, res: Response): Promise<void> => {
-  try {
+export const getUsers = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
     const users: UserDocument[] = await UserModel.find();
     buildResponse(res, users);
-  } catch (err: any) {
-    handleError(res, {
-      moreInfo: err.message,
-    });
   }
-};
+);
 
 // @desc    Get all users
 // @route   GET /user

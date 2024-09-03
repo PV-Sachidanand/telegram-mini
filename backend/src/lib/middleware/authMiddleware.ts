@@ -4,7 +4,7 @@ import {
   type InitDataParsed,
 } from "@telegram-apps/init-data-node";
 import { type RequestHandler, type Response } from "express";
-import { BOT_TOKEN } from "../constants";
+import { TELEGRAM_BOT_TOKEN } from "../constants";
 import buildError from "../utils/buildError";
 import { handleError } from "../handlers/handleError";
 
@@ -50,7 +50,7 @@ export const authMiddleware: RequestHandler = (req, res, next) => {
       case "tma":
         try {
           // Validate init data.
-          validate(authData, BOT_TOKEN, {
+          validate(authData, TELEGRAM_BOT_TOKEN, {
             // We consider init data sign valid for 1 hour from their creation moment.
             expiresIn: 3600,
           });
