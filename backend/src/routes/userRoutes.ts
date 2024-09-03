@@ -16,9 +16,9 @@ router.get("/users", authMiddleware, getUsers);
 router.get("/user", authMiddleware, getUser);
 
 // Route to create a new user
-router.post("/user", createUser);
+router.post("/user", authMiddleware, createUser);
 
 // Route to create a new user
-router.post("/authenticate", authenticate);
+router.post("/authenticate", authMiddleware, authenticate);
 
 export default router;

@@ -5,6 +5,8 @@ import {
 } from "@telegram-apps/init-data-node";
 import { type RequestHandler, type Response } from "express";
 import { BOT_TOKEN } from "../constants";
+import buildError from "../utils/buildError";
+import { handleError } from "../handlers/handleError";
 
 /**
  * Sets init data in the specified Response object.
@@ -35,27 +37,35 @@ export const authMiddleware: RequestHandler = (req, res, next) => {
   // We expect passing init data in the Authorization header in the following format:
   // <auth-type> <auth-data>
   // <auth-type> must be "tma", and <auth-data> is Telegram Mini Apps init data.
-  const [authType, authData = ""] = (req.header("authorization") || "").split(
-    " "
-  );
+  try {
+    const [authType, authData = ""] = (req.header("authorization") || "").split(
+      " "
+    );
 
-  switch (authType) {
-    case "tma":
-      try {
-        // Validate init data.
-        validate(authData, BOT_TOKEN, {
-          // We consider init data sign valid for 1 hour from their creation moment.
-          expiresIn: 3600,
-        });
+    if (!authData || !authType) {
+      return buildError(401, "authType or authData not supplied");
+    }
 
-        // Parse init data. We will surely need it in the future.
-        setInitData(res, parse(authData));
-        return next();
-      } catch (e) {
-        return next(e);
-      }
-    // ... other authorization methods.
-    default:
-      return next(new Error("Unauthorized"));
+    switch (authType) {
+      case "tma":
+        try {
+          // Validate init data.
+          validate(authData, BOT_TOKEN, {
+            // We consider init data sign valid for 1 hour from their creation moment.
+            expiresIn: 3600,
+          });
+
+          // Parse init data. We will surely need it in the future.
+          setInitData(res, parse(authData));
+          return next();
+        } catch (e: any) {
+          return next(buildError(401, e.message));
+        }
+      // ... other authorization methods.
+      default:
+        return next(buildError(404, "Unauthorized"));
+    }
+  } catch (error: any) {
+    handleError(res, error);
   }
 };

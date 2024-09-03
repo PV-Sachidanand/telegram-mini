@@ -14,3 +14,9 @@ export type JwtPayload = {
   exp?: number;
   iat?: number;
 };
+
+export interface ErrorResponse {
+  code?: number;
+  message?: string;
+  moreInfo?: string | object;
+}

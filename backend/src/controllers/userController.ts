@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { UserDocument, UserModel } from "../models/User";
 import buildError from "../lib/utils/buildError";
-import { handleError } from "../lib/utils/handleError";
+import { handleError } from "../lib/handlers/handleError";
 import buildResponse from "../lib/utils/buildResponse";
 import { StatusCodes } from "../lib/utils/statusCodes";
 import dayjs from "dayjs";
@@ -9,6 +9,7 @@ import authService from "../lib/services/authServices";
 import { DOMAIN, NODE_ENV } from "../lib/constants";
 import { JwtSubject } from "../@types";
 import { getInitData } from "../lib/middleware/authMiddleware";
+import asyncHandler from "../lib/handlers/asyncHandler";
 
 // @desc    Get all users
 // @route   GET /users
@@ -27,11 +28,9 @@ export const getUsers = async (req: Request, res: Response): Promise<void> => {
 // @desc    Get all users
 // @route   GET /user
 // @access  Public
-export const getUser = async (req: Request, res: Response): Promise<void> => {
-  try {
+export const getUser = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
     const reqUser = getInitData(res);
-    console.log("reqUser", reqUser);
-
     const user: UserDocument | null = await UserModel.findById({
       _id: reqUser?.user?.id,
     });
@@ -40,37 +39,29 @@ export const getUser = async (req: Request, res: Response): Promise<void> => {
     } else {
       buildError(StatusCodes.NOT_FOUND, "User not found");
     }
-  } catch (err: any) {
-    handleError(res, err);
   }
-};
+);
 
 // @desc    Create a new user
 // @route   POST /user
 // @access  Public
-export const createUser = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
-  try {
-    const user: UserDocument = new UserModel(req.body);
+export const createUser = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
+    const reqUser = getInitData(res);
+    const user: UserDocument = new UserModel({
+      _id: reqUser?.user?.id,
+      ...reqUser?.user,
+    });
     await user.save();
     buildResponse(res, user);
-  } catch (err: any) {
-    handleError(res, err);
   }
-};
+);
 
-export const authenticate = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
-  try {
+export const authenticate = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
     const { user, auth_date } = authService.validateMiniAppInitData(
       req.body.initDataRaw
     );
-    console.log("userhhhhhh", user);
-
     // Validate session expiration
     if (
       !auth_date ||
@@ -107,7 +98,5 @@ export const authenticate = async (
       });
       buildResponse(res, { user: updatedUser, token: jwt });
     }
-  } catch (err: any) {
-    handleError(res, err);
   }
-};
+);
