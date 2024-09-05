@@ -1,8 +1,8 @@
 import jwt from "jsonwebtoken";
-import { JWT_SECRET_KEY } from "../constants";
-import { JwtPayload } from "../../@types";
-import buildError from "../utils/buildError";
-import { StatusCodes } from "../utils/statusCodes";
+import { JWT_SECRET_KEY } from "../lib//constants";
+import { JwtPayload } from "../@types";
+import buildError from "../lib//utils/buildError";
+import { StatusCodes } from "../lib//utils/statusCodes";
 
 /**
  * Class for JWT services.

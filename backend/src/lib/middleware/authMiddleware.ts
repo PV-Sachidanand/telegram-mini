@@ -7,6 +7,7 @@ import { type RequestHandler, type Response } from "express";
 import { TELEGRAM_BOT_TOKEN } from "../constants";
 import buildError from "../utils/buildError";
 import { handleError } from "../handlers/handleError";
+import { StatusCodes } from "../utils/statusCodes";
 
 /**
  * Sets init data in the specified Response object.
@@ -24,7 +25,14 @@ function setInitData(res: Response, initData: InitDataParsed): void {
  * the client is not authorized.
  */
 export function getInitData(res: Response): InitDataParsed | undefined {
-  return res.locals.initData;
+  if (res.locals.initData && res.locals.initData?.user) {
+    return res.locals.initData;
+  }
+  buildError(
+    StatusCodes.NON_AUTHORITATIVE_INFORMATION,
+    "Invalid Telegram User"
+  );
+  return undefined;
 }
 
 /**

@@ -4,94 +4,115 @@ import buildError from "../lib/utils/buildError";
 import buildResponse from "../lib/utils/buildResponse";
 import { StatusCodes } from "../lib/utils/statusCodes";
 import dayjs from "dayjs";
-import authService from "../lib/services/authServices";
 import { DOMAIN, NODE_ENV } from "../lib/constants";
 import { JwtSubject } from "../@types";
 import { getInitData } from "../lib/middleware/authMiddleware";
 import asyncHandler from "../lib/handlers/asyncHandler";
+import ServiceManager from "../services";
 
-// @desc    Get all users
-// @route   GET /users
-// @access  Public
-export const getUsers = asyncHandler(
-  async (req: Request, res: Response): Promise<void> => {
-    const users: UserDocument[] = await UserModel.find();
-    buildResponse(res, users);
+/**
+ * UserController is a class that extends ServiceManager and is responsible for handling user-related operations.
+ */
+class UserController extends ServiceManager {
+  constructor() {
+    super();
   }
-);
 
-// @desc    Get all users
-// @route   GET /user
-// @access  Public
-export const getUser = asyncHandler(
-  async (req: Request, res: Response): Promise<void> => {
-    const reqUser = getInitData(res);
-    const user: UserDocument | null = await UserModel.findById({
-      _id: reqUser?.user?.id,
-    });
-    if (user?._id) {
+  /**
+   * @desc    Get a single user
+   * @route   GET /user
+   * @access  Public
+   * @returns A promise that resolves to void.
+   */
+  public getUser = asyncHandler(
+    async (req: Request, res: Response): Promise<void> => {
+      const reqUser = getInitData(res);
+      if (!reqUser?.user?.id) {
+        buildError(StatusCodes.BAD_REQUEST, "User ID is required");
+        return;
+      }
+      const user: UserDocument | null =
+        await this.authServices.findLoggedInUser(reqUser.user.id);
+      if (user?._id) {
+        buildResponse(res, user);
+      } else {
+        buildError(StatusCodes.NOT_FOUND, "User not found");
+      }
+    }
+  );
+
+  /**
+   * @desc    Create a new user
+   * @route   POST /user
+   * @access  Public
+   * @returns A promise that resolves to void.
+   */
+  createUser = asyncHandler(
+    async (req: Request, res: Response): Promise<void> => {
+      const reqUser = getInitData(res);
+      if (!reqUser?.user?.id) {
+        buildError(StatusCodes.BAD_REQUEST, "User ID is required");
+        return;
+      }
+      const user: UserDocument = await this.authServices.createUser({
+        _id: reqUser.user.id,
+        ...reqUser.user,
+      } as UserDocument);
       buildResponse(res, user);
-    } else {
-      buildError(StatusCodes.NOT_FOUND, "User not found");
     }
-  }
-);
+  );
 
-// @desc    Create a new user
-// @route   POST /user
-// @access  Public
-export const createUser = asyncHandler(
-  async (req: Request, res: Response): Promise<void> => {
-    const reqUser = getInitData(res);
-    const user: UserDocument = new UserModel({
-      _id: reqUser?.user?.id,
-      ...reqUser?.user,
-    });
-    await user.save();
-    buildResponse(res, user);
-  }
-);
+  /**
+   * @desc    Authenticate a user
+   * @route   POST /authenticate
+   * @access  Public
+   * @returns A promise that resolves to void.
+   */
+  public authenticate = asyncHandler(
+    async (req: Request, res: Response): Promise<void> => {
+      const { user, auth_date } = this.authServices.validateMiniAppInitData(
+        req.body.initDataRaw
+      );
+      // Validate session expiration
+      if (
+        !auth_date ||
+        (dayjs.unix(auth_date).isBefore(dayjs().subtract(1, "minute")) &&
+          NODE_ENV !== "development")
+      ) {
+        buildError(StatusCodes.BAD_REQUEST, "Invalid session");
+        return;
+      }
 
-export const authenticate = asyncHandler(
-  async (req: Request, res: Response): Promise<void> => {
-    const { user, auth_date } = authService.validateMiniAppInitData(
-      req.body.initDataRaw
-    );
-    // Validate session expiration
-    if (
-      !auth_date ||
-      (dayjs.unix(auth_date).isBefore(dayjs().subtract(1, "minute")) &&
-        NODE_ENV !== "development")
-    ) {
-      buildError(StatusCodes.BAD_REQUEST, "Invalid session");
-      return;
+      if (!user) {
+        buildError(StatusCodes.BAD_REQUEST, "User data is missing");
+        return;
+      }
+
+      const updatedUser = await this.authServices.getOrCreateUser(
+        user as JwtSubject
+      );
+      if (updatedUser) {
+        const jwt = await this.authServices.createAccessToken({
+          id: user.id,
+          first_name: user.first_name,
+          username: user.username,
+          is_premium: user?.is_premium,
+          language_code: user?.language_code,
+          allows_write_to_pm: user?.allows_write_to_pm,
+          start_param: user?.start_param,
+        });
+
+        res.cookie("miniapp_jwt", jwt, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          maxAge: 1000 * 60 * 60 * 1,
+          domain: DOMAIN,
+          sameSite: "none",
+        });
+        buildResponse(res, { user: updatedUser, token: jwt });
+      }
     }
+  );
+}
 
-    if (!user) {
-      buildError(StatusCodes.BAD_REQUEST, "User data is missing");
-      return;
-    }
-
-    const updatedUser = await authService.getOrCreateUser(user as JwtSubject);
-    if (updatedUser) {
-      const jwt = await authService.createAccessToken({
-        id: user.id,
-        first_name: user.first_name,
-        username: user.username,
-        is_premium: user?.is_premium,
-        language_code: user?.language_code,
-        allows_write_to_pm: user?.allows_write_to_pm,
-        start_param: user?.start_param,
-      });
-
-      res.cookie("miniapp_jwt", jwt, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        maxAge: 1000 * 60 * 60 * 1,
-        domain: DOMAIN,
-        sameSite: "none",
-      });
-      buildResponse(res, { user: updatedUser, token: jwt });
-    }
-  }
-);
+export default UserController;

@@ -1,42 +1,38 @@
-import { Router } from "express";
-import {
-  getUsers,
-  createUser,
-  getUser,
-  authenticate,
-} from "../controllers/userController";
+import { Router, Request, Response } from "express";
 import { authMiddleware } from "../lib/middleware/authMiddleware";
+import ControllerManager from "../controllers";
 
 /**
- * This module sets up the routes for user-related operations.
- * It includes routes for fetching all users, fetching a single user,
- * creating a new user, and authenticating a user.
+ * UserRouter is a class that extends ControllerManager and is responsible for setting up routes related to user operations.
  */
+class UserRouter extends ControllerManager {
+  public router: Router;
 
-const router = Router();
+  /**
+   * Constructor for UserRouter. Initializes the Express router and sets up routes.
+   */
+  constructor() {
+    super();
+    this.router = Router();
+    this.initializeRoutes();
+  }
+
+  /**
+   * Initializes all routes related to user operations.
+   * This method sets up routes for getting all users, getting a single user, creating a new user, and authenticating a user.
+   */
+  private initializeRoutes() {
+    this.router.get("/user", authMiddleware, super.userController.getUser);
+    this.router.post("/user", authMiddleware, super.userController.createUser);
+    this.router.post(
+      "/authenticate",
+      authMiddleware,
+      super.userController.authenticate
+    );
+  }
+}
 
 /**
- * Route to fetch all users. This route is protected by the authMiddleware.
- * It requires authentication to access.
+ * Exports the router instance for use in the application.
  */
-router.get("/users", authMiddleware, getUsers);
-
-/**
- * Route to fetch a single user. This route is protected by the authMiddleware.
- * It requires authentication to access.
- */
-router.get("/user", authMiddleware, getUser);
-
-/**
- * Route to create a new user. This route is protected by the authMiddleware.
- * It requires authentication to access.
- */
-router.post("/user", authMiddleware, createUser);
-
-/**
- * Route to authenticate a user. This route is protected by the authMiddleware.
- * It requires authentication to access.
- */
-router.post("/authenticate", authMiddleware, authenticate);
-
-export default router;
+export default new UserRouter().router;

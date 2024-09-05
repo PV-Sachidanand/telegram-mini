@@ -2,7 +2,6 @@ import { TokenType } from "@/lib/constants";
 import { useAuthenticateMutation } from "../../services/authServices";
 import { retrieveLaunchParams, useMainButton } from "@telegram-apps/sdk-react";
 import { useEffect } from "react";
-import { Axios } from "@/services/axios";
 
 export default function StartPage() {
   const mainButton = useMainButton();
@@ -23,20 +22,6 @@ export default function StartPage() {
       authenticate({ initDataRaw });
     }
   };
-
-  useEffect(() => {
-    const fetchInit = async () => {
-      try {
-        const response = await Axios.get("/users");
-        console.log("response", response);
-      } catch (error) {
-        console.error("Error fetching init data:", error);
-      }
-    };
-    if (initDataRaw) {
-      fetchInit();
-    }
-  }, [initDataRaw]);
 
   useEffect(() => {
     if (isSuccess && data.success) {

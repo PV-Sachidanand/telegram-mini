@@ -27,12 +27,12 @@ app.use(cors()); // Use cors
 
 const PORT = process.env.PORT || 5000;
 // Define routes
-app.use("/", routes);
 app.get("/", (req, res) => {
   res.send(`<h1>Server is running on Port : ${PORT}</h1>`);
 });
+app.use("/", routes);
 
-// Error handler middleware
+// Custom Error handler middleware
 app.use(errorHandlerMiddleware);
 
 app.listen(PORT, () =>
