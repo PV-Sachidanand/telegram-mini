@@ -12,6 +12,13 @@ import connectDB from "./config/db";
 import routes from "./routes"; // Import the consolidated routes
 import cors from "cors"; // Import cors
 import errorHandlerMiddleware from "./lib/middleware/errorHandlerMiddleware";
+import {
+  APP_PORT,
+  NODE_ENV,
+  REDIS_HOST,
+  REDIS_PORT,
+  USE_REDIS,
+} from "./lib/constants";
 
 // Load environment variables
 dotenv.config();
@@ -25,16 +32,44 @@ const app = express();
 app.use(express.json());
 app.use(cors()); // Use cors
 
-const PORT = process.env.PORT || 5000;
+// Conditional Redis cache based on environment variable
+if (USE_REDIS === "true") {
+  try {
+    const getExpeditiousCache = require("express-expeditious");
+    const cache = getExpeditiousCache({
+      namespace: "expresscache",
+      defaultTtl: "1 minute",
+      engine: require("expeditious-engine-redis")({
+        redis: {
+          host: REDIS_HOST || "localhost",
+          port: REDIS_PORT || 6379,
+        },
+      }),
+    });
+
+    app.use(cache); // Apply cache middleware globally
+  } catch (error) {
+    console.error("Error connecting to Redis:", error);
+  }
+}
+
 // Define routes
 app.get("/", (req, res) => {
-  res.send(`<h1>Server is running on Port : ${PORT}</h1>`);
+  res.send(`<h1>Server is running on Port : ${APP_PORT}</h1>`);
 });
 app.use("/", routes);
 
 // Custom Error handler middleware
 app.use(errorHandlerMiddleware);
 
-app.listen(PORT, () =>
-  console.log(`Server running on port http://localhost:${PORT}`)
-);
+app.listen(APP_PORT, () => {
+  if (NODE_ENV === "development") {
+    console.log("---------------------------------------");
+    console.log(`* Server   : Started`);
+    console.log(`* PORT     : ${APP_PORT}`);
+    console.log(`* Database : MongoDB`);
+    console.log(`* NODE_ENV : ${NODE_ENV}`);
+    console.log(`* URL      : http://localhost:${APP_PORT}`);
+    console.log("---------------------------------------");
+  }
+});

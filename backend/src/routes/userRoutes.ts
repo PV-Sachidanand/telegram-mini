@@ -1,4 +1,4 @@
-import { Router, Request, Response } from "express";
+import { Router } from "express";
 import { authMiddleware } from "../lib/middleware/authMiddleware";
 import ControllerManager from "../controllers";
 
@@ -24,11 +24,7 @@ class UserRouter extends ControllerManager {
   private initializeRoutes() {
     this.router.get("/user", authMiddleware, super.userController.getUser);
     this.router.post("/user", authMiddleware, super.userController.createUser);
-    this.router.post(
-      "/authenticate",
-      authMiddleware,
-      super.userController.authenticate
-    );
+    this.router.post("/authenticate", super.userController.authenticate);
   }
 }
 

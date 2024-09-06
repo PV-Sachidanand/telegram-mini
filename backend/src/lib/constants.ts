@@ -32,3 +32,27 @@ export const DOMAIN: string = process.env.DOMAIN as string;
  * @type {string}
  */
 export const MONGO_URI: string = process.env.MONGO_URI as string;
+
+/**
+ * Redis Host for establishing a connection to the Redis server
+ * @type {string}
+ */
+export const REDIS_HOST: string = process.env.REDIS_HOST as string;
+
+/**
+ * Redis Port for establishing a connection to the Redis server
+ * @type {string}
+ */
+export const REDIS_PORT: string = process.env.REDIS_PORT as string;
+
+/**
+ * The port number on which the application is running
+ * @type {string}
+ */
+export const APP_PORT: string = (process.env.PORT as string) || "5000";
+
+/**
+ * Environment variable indicating whether to use Redis for caching
+ * @type {string}
+ */
+export const USE_REDIS: string = process.env.USE_REDIS as string;
