@@ -1,5 +1,6 @@
 import AuthService from "./authServices";
 import JWTServices from "./jwtServices";
+import ReferralServices from "./referralServices";
 
 /**
  * ServiceManager is a singleton class that manages instances of AuthService and JWTServices.
@@ -8,6 +9,7 @@ import JWTServices from "./jwtServices";
 class ServiceManager {
   private authServicesInstance: AuthService | undefined;
   private jwtServicesInstance: JWTServices | undefined;
+  private referralServicesInstance: ReferralServices | undefined;
   constructor() {}
 
   /**
@@ -30,6 +32,17 @@ class ServiceManager {
       this.jwtServicesInstance = new JWTServices();
     }
     return this.jwtServicesInstance;
+  }
+
+  /**
+   * Getter for ReferralServices instance. If an instance does not exist, it creates a new one.
+   * @returns The ReferralServices instance.
+   */
+  protected get referralServices() {
+    if (!this.referralServicesInstance) {
+      this.referralServicesInstance = new ReferralServices();
+    }
+    return this.referralServicesInstance;
   }
 }
 

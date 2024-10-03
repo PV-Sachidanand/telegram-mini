@@ -1,3 +1,4 @@
+import ReferralController from "./referralController";
 import UserController from "./userController";
 
 /**
@@ -6,6 +7,7 @@ import UserController from "./userController";
  */
 class ControllerManager {
   private userControllerInstance: UserController | undefined;
+  private referralControllerInstance: ReferralController | undefined;
   /**
    * Constructor for ControllerManager. Initializes the controller manager.
    */
@@ -19,6 +21,17 @@ class ControllerManager {
       this.userControllerInstance = new UserController();
     }
     return this.userControllerInstance;
+  }
+
+  /**
+   * Getter for ReferralController instance. If an instance does not exist, it creates a new one.
+   * @returns The ReferralController instance.
+   */
+  protected get referralController() {
+    if (!this.referralControllerInstance) {
+      this.referralControllerInstance = new ReferralController();
+    }
+    return this.referralControllerInstance;
   }
 }
 

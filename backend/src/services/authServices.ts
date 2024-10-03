@@ -11,6 +11,10 @@ import JWTServices from "./jwtServices";
 import RepositoryManager from "../repositories";
 import { UserDocument } from "../models";
 import { ObjectId } from "mongoose";
+import { generateReferralCode } from "../lib/utils/generateReferralCode";
+import buildError from "../lib/utils/buildError";
+import { StatusCodes } from "../lib/utils/statusCodes";
+import UserMessages from "../lib/messages/user";
 
 class AuthService extends RepositoryManager {
   constructor() {
@@ -33,6 +37,10 @@ class AuthService extends RepositoryManager {
   }
 
   async getOrCreateUser(user: JwtSubject) {
+    const isUserExists = await this.userRepository.findOne({ _id: user.id });
+    if (isUserExists) {
+      return buildError(StatusCodes.CONFLICT, UserMessages.USER_ALREADY_EXISTS);
+    }
     return await this.userRepository
       .findOneAndUpdate(
         { _id: user.id },
@@ -44,6 +52,7 @@ class AuthService extends RepositoryManager {
             isPremium: user.is_premium,
             languageCode: user.language_code,
             allowsWriteToPm: user.allows_write_to_pm,
+            referralCode: generateReferralCode(user.id),
           },
         },
         {
@@ -61,6 +70,10 @@ class AuthService extends RepositoryManager {
    * @returns A promise that resolves to the created user document.
    */
   async createUser(docs: UserDocument): Promise<UserDocument> {
+    const isUserExists = await this.userRepository.findOne({ _id: docs.id });
+    if (isUserExists) {
+      return buildError(StatusCodes.CONFLICT, UserMessages.USER_ALREADY_EXISTS);
+    }
     return await this.userRepository.create(docs);
   }
 
@@ -72,6 +85,12 @@ class AuthService extends RepositoryManager {
    */
   async findLoggedInUser(_id: ObjectId | number): Promise<UserDocument | null> {
     return await this.userRepository.findById(_id);
+  }
+
+  async getUserByReferralCode(
+    referralCode: string
+  ): Promise<UserDocument | null> {
+    return await this.userRepository.findOne({ referralCode });
   }
 }
 export default AuthService;

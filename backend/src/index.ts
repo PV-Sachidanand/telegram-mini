@@ -13,6 +13,7 @@ import routes from "./routes"; // Import the consolidated routes
 import cors from "cors"; // Import cors
 import errorHandlerMiddleware from "./lib/middleware/errorHandlerMiddleware";
 import {
+  API_VERSION,
   APP_PORT,
   NODE_ENV,
   REDIS_HOST,
@@ -57,7 +58,7 @@ if (USE_REDIS === "true") {
 app.get("/", (req, res) => {
   res.send(`<h1>Server is running on Port : ${APP_PORT}</h1>`);
 });
-app.use("/", routes);
+app.use(`/${API_VERSION}`, routes);
 
 // Custom Error handler middleware
 app.use(errorHandlerMiddleware);

@@ -3,13 +3,13 @@ import { authMiddleware } from "../lib/middleware/authMiddleware";
 import ControllerManager from "../controllers";
 
 /**
- * UserRouter is a class that extends ControllerManager and is responsible for setting up routes related to user operations.
+ * ReferralRouter is a class that extends ControllerManager and is responsible for setting up routes related to user operations.
  */
-class UserRouter extends ControllerManager {
+class ReferralRouter extends ControllerManager {
   public router: Router;
 
   /**
-   * Constructor for UserRouter. Initializes the Express router and sets up routes.
+   * Constructor for ReferralRouter. Initializes the Express router and sets up routes.
    */
   constructor() {
     super();
@@ -23,14 +23,13 @@ class UserRouter extends ControllerManager {
    */
   private initializeRoutes() {
     this.router
-      .route("/user")
-      .get(authMiddleware, super.userController.getUser)
-      .post(authMiddleware, super.userController.createUser);
-    this.router.post("/authenticate", super.userController.authenticate);
+      .route("/referral")
+      .get(authMiddleware, super.referralController.getReferrals)
+      .post(authMiddleware, super.referralController.createReferral);
   }
 }
 
 /**
  * Exports the router instance for use in the application.
  */
-export default new UserRouter().router;
+export default new ReferralRouter().router;

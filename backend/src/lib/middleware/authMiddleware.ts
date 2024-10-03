@@ -69,7 +69,6 @@ export const authMiddleware: RequestHandler = (req, res, next) => {
         } catch (e: any) {
           return next(buildError(401, e.message));
         }
-      // ... other authorization methods.
       default:
         return next(buildError(404, "Unauthorized"));
     }

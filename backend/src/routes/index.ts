@@ -2,6 +2,7 @@ import { Router } from "express";
 import userRoutes from "./userRoutes";
 import buildError from "../lib/utils/buildError";
 import { StatusCodes } from "../lib/utils/statusCodes";
+import referralRoutes from "./referralRoutes";
 
 /**
  * This module sets up the main router for the application.
@@ -13,6 +14,7 @@ const router = Router();
  * Mounts the user routes at the root path.
  */
 router.use("/", userRoutes);
+router.use("/", referralRoutes);
 // Add other route modules here
 
 /**

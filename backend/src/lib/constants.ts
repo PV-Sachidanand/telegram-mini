@@ -56,3 +56,9 @@ export const APP_PORT: string = (process.env.PORT as string) || "5000";
  * @type {string}
  */
 export const USE_REDIS: string = process.env.USE_REDIS as string;
+
+/**
+ * API Version
+ * @type {string}
+ */
+export const API_VERSION: string = process.env.API_VERSION as string;

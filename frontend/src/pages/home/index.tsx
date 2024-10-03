@@ -3,6 +3,7 @@ import { User } from "@telegram-apps/sdk-react";
 import { useEffect, useState } from "react";
 export default function HomePage() {
   const [user, setUser] = useState<User | undefined>(undefined);
+
   useEffect(() => {
     const fetchInit = async () => {
       try {

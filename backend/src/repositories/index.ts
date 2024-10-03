@@ -1,4 +1,5 @@
 import UserRepository from "../repositories/userRepository";
+import ReferralRepository from "./referralRepository";
 
 /**
  * RepositoryManager is a singleton class that manages the instantiation of repositories.
@@ -6,7 +7,7 @@ import UserRepository from "../repositories/userRepository";
  */
 class RepositoryManager {
   private _userRepositoryInstance: UserRepository | undefined;
-
+  private _referralRepositoryInstance: ReferralRepository | undefined;
   /**
    * Constructor for RepositoryManager.
    * Initializes the instance with no UserRepository instance.
@@ -25,6 +26,13 @@ class RepositoryManager {
       this._userRepositoryInstance = new UserRepository();
     }
     return this._userRepositoryInstance;
+  }
+
+  protected get referralRepository() {
+    if (!this._referralRepositoryInstance) {
+      this._referralRepositoryInstance = new ReferralRepository();
+    }
+    return this._referralRepositoryInstance;
   }
 }
 

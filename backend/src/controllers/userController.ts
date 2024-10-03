@@ -9,6 +9,8 @@ import { JwtSubject } from "../@types";
 import { getInitData } from "../lib/middleware/authMiddleware";
 import asyncHandler from "../lib/handlers/asyncHandler";
 import ServiceManager from "../services";
+import UserMessages from "../lib/messages/user";
+import { generateReferralCode } from "../lib/utils/generateReferralCode";
 
 /**
  * UserController is a class that extends ServiceManager and is responsible for handling user-related operations.
@@ -28,15 +30,14 @@ class UserController extends ServiceManager {
     async (req: Request, res: Response): Promise<void> => {
       const reqUser = getInitData(res);
       if (!reqUser?.user?.id) {
-        buildError(StatusCodes.BAD_REQUEST, "User ID is required");
-        return;
+        return buildError(StatusCodes.BAD_REQUEST, UserMessages.USER_NOT_FOUND);
       }
       const user: UserDocument | null =
         await this.authServices.findLoggedInUser(reqUser.user.id);
       if (user?._id) {
         buildResponse(res, user);
       } else {
-        buildError(StatusCodes.NOT_FOUND, "User not found");
+        buildError(StatusCodes.NOT_FOUND, UserMessages.USER_NOT_FOUND);
       }
     }
   );
@@ -51,12 +52,12 @@ class UserController extends ServiceManager {
     async (req: Request, res: Response): Promise<void> => {
       const reqUser = getInitData(res);
       if (!reqUser?.user?.id) {
-        buildError(StatusCodes.BAD_REQUEST, "User ID is required");
-        return;
+        return buildError(StatusCodes.BAD_REQUEST, UserMessages.USER_NOT_FOUND);
       }
       const user: UserDocument = await this.authServices.createUser({
         _id: reqUser.user.id,
         ...reqUser.user,
+        referralCode: generateReferralCode(reqUser.user.id),
       } as UserDocument);
       buildResponse(res, user);
     }
@@ -79,13 +80,17 @@ class UserController extends ServiceManager {
         (dayjs.unix(auth_date).isBefore(dayjs().subtract(1, "minute")) &&
           NODE_ENV !== "development")
       ) {
-        buildError(StatusCodes.BAD_REQUEST, "Invalid session");
-        return;
+        return buildError(
+          StatusCodes.BAD_REQUEST,
+          UserMessages.USER_INVALID_SESSION
+        );
       }
 
       if (!user) {
-        buildError(StatusCodes.BAD_REQUEST, "User data is missing");
-        return;
+        return buildError(
+          StatusCodes.BAD_REQUEST,
+          UserMessages.USER_DATA_MISSING
+        );
       }
 
       const updatedUser = await this.authServices.getOrCreateUser(

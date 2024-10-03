@@ -23,8 +23,8 @@ class BaseRepository<T> {
    *
    * @returns A promise that resolves to an array of documents.
    */
-  findAll(): Promise<T[]> {
-    return this.model.find();
+  findAll(filter: FilterQuery<T> = {}): Promise<T[]> {
+    return this.model.find(filter);
   }
 
   /**
@@ -43,8 +43,8 @@ class BaseRepository<T> {
    * @param _id The ID of the document to find.
    * @returns A promise that resolves to the document if found, otherwise null.
    */
-  findOne(_id: ObjectId | Number): Promise<T | null> {
-    return this.model.findOne({ _id });
+  findOne(filter: FilterQuery<T>): Promise<T | null> {
+    return this.model.findOne(filter);
   }
 
   /**
